@@ -1,6 +1,6 @@
 # ADR-0001 — انتخابِ زبان‌ها و پشتهٔ فناوری / Language & Tech-Stack Selection
 
-- **وضعیت / Status:** 🟢 **شواهد‌محور، منتظرِ تصویبِ حاکم / Evidence-backed, awaiting Sovereign ratification** — `SPIKE-COMPARE` اجرا و توسطِ ممیز **PASS** شد (AUDIT-0004، §۸). پشتهٔ Rust+TS با شاهد پشتیبانی می‌شود؛ موارد باقی‌مانده در `SPIKE-0`. پرچم‌قرمزِ قبلی (AUDIT-0002) رفع شده.
+- **وضعیت / Status:** ✅ **Accepted & Locked / تصویب و قفل‌شده** (حاکم در 2026-06-04 تصویب کرد) — پشتهٔ **Rust (هسته→WASM) + TypeScript (پوسته)** قفل شد. مواردِ بازِ `SPIKE-0` (قطعیتِ میان‌ماشینی، `exp/softmax`، اندازهٔ wasm) هنگامِ ساختِ موتور بسته می‌شوند. تاریخچه: AUDIT-0002 (رفع‌شده) → SPIKE-COMPARE/AUDIT-0004 (PASS) → تصویبِ حاکم.
 - **تاریخ / Date:** 2026-06-04
 - **تصمیم‌گیران / Deciders:** شورا (۴ گروه) + رهبر؛ زیرِ نظرِ ممیزِ نگهبان.
 - **خروجیِ:** [`BRAINSTORM-001-tech-stack.md`](BRAINSTORM-001-tech-stack.md)
