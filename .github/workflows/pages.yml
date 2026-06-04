@@ -1,7 +1,7 @@
 name: Deploy game to GitHub Pages
 
 # Publishes the self-contained playable prototypes in site/ to GitHub Pages.
-# Auto-enables Pages on first run (configure-pages enablement) so no manual setting is needed.
+# Pages enabled by the repo owner (Settings -> Pages -> Source: GitHub Actions); this workflow deploys site/.
 on:
   push:
     branches: [ main, claude/zen-albattani-wDzFr ]
