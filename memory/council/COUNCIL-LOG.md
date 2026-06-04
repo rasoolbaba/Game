@@ -12,3 +12,10 @@
 - محتوا: نخستین طوفان فکریِ شورا = انتخابِ زبان‌ها/پشتهٔ فناوری. خروجی به `ADR-0001` و این لاگ افزوده می‌شود.
 - برچسبِ حقیقت: ASSUMED ⚠️ (تا ثبتِ خروجی)
 - ارجاع‌ها: `ADR-0001-tech-stack.md`, `04-BRAINSTORM-PROTOCOL.md`
+
+### MEM-COUNCIL-0003 — 2026-06-04 — خروجیِ BRAINSTORM-001
+- نوع: تصمیم (موقت)
+- محتوا: هم‌گراییِ شورا بر **Rust→WASM (هسته) + TypeScript (پوسته)**، **fixed-point** برای قطعیت، **WebRTC** برای P2P، **WebGPU** برای رندر، **event-sourcing/lockstep + CRDT** برای حالت. مشروط به اسپایک‌ها و تصویبِ حاکم.
+- شواهد: `docs/decisions/BRAINSTORM-001-tech-stack.md`, `ADR-0001-tech-stack.md`
+- برچسبِ حقیقت: ASSUMED ⚠️ (تا عبور از SPIKE-0/SPIKE-COMPARE و تصویب)
+- ارجاع‌ها: ADR-0001, AUDIT-0002, EXP-0003

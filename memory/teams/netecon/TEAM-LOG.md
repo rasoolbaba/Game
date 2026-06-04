@@ -6,3 +6,9 @@
 - محتوا: این گروه رسماً تشکیل شد و منشورِ خود را در `docs/governance/01-AGENT-CHARTER.md` پذیرفت.
 - برچسبِ حقیقت: VERIFIED ✅
 - ارجاع‌ها: 01-AGENT-CHARTER.md
+
+### MEM-netecon-0002 — 2026-06-04 — موضع در BRAINSTORM-001
+- نوع: یافته
+- محتوا: WebRTC + کشفِ DHT (libp2p ASSUMED ⚠️)؛ event-sourced lockstep + CRDT «گذرنامه» برای مسافر. ایده: **«اثباتِ اقامت»** برای اقتصادِ خالق با مقاومتِ sybil از راهِ ثبتِ جهانِ staked.
+- برچسبِ حقیقت: ASSUMED ⚠️ (نیاز به اسپایکِ NAT/کشف؛ ملاحظاتِ حقوقیِ توکن به مرحلهٔ ۳)
+- ارجاع‌ها: BRAINSTORM-001, ADR-0001
