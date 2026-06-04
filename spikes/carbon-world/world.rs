@@ -5,8 +5,8 @@
 
 include!("carbon_core.rs");
 
-const CH: [u8; NBIOME] = [b'~', b'-', b'.', b'd', b's', b',', b';', b'f', b'F', b't', b'u', b'^', b'*'];
-const NAME: [&str; NBIOME] = ["deepocean","ocean","beach","desert","savanna","grass","shrub","tempforest","rainforest","taiga","tundra","rock","snow"];
+const CH: [u8; NBIOME] = [b'~', b'-', b'.', b'd', b's', b',', b';', b'f', b'F', b't', b'u', b'^', b'*', b':', b'o'];
+const NAME: [&str; NBIOME] = ["deepocean","ocean","beach","desert","savanna","grass","shrub","tempforest","rainforest","taiga","tundra","rock","snow","river","lake"];
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
