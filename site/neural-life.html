@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEMIURGE — حیاتِ عصبیِ قطعی / Deterministic Neural Life</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #070a10; color: #cdd6e4; font: 14px/1.5 system-ui, "Segoe UI", Tahoma, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 18px; }
+  h1 { font-size: 18px; margin: 4px 0 2px; font-weight: 650; letter-spacing: .2px; }
+  .sub { color: #7d8aa5; font-size: 12px; margin-bottom: 12px; text-align: center; max-width: 560px; }
+  .wrap { background: #0c111b; border: 1px solid #1b2535; border-radius: 14px; padding: 14px; box-shadow: 0 10px 40px #0009; }
+  canvas { display: block; border-radius: 8px; background: #05070c; image-rendering: pixelated; }
+  .hud { font-variant-numeric: tabular-nums; margin-top: 10px; color: #9fb0cc; font-size: 12.5px; min-height: 18px; direction: ltr; text-align: left; }
+  .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; justify-content: center; }
+  button { background: #16213a; color: #d7e2f5; border: 1px solid #25344f; border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 13px; }
+  button:hover { background: #1d2c4b; }
+  label { color: #7d8aa5; font-size: 12px; }
+  input[type=range] { vertical-align: middle; }
+  .legend { margin-top: 10px; font-size: 11.5px; color: #6f7d97; direction: ltr; }
+  code { color: #8fd0a8; background: #0e1726; padding: 1px 5px; border-radius: 4px; }
+  a { color: #6ea8fe; }
+</style>
+</head>
+<body>
+  <h1>🧬 حیاتِ عصبیِ قطعی — Deterministic Neural Life</h1>
+  <div class="sub">
+    موجوداتِ عصبیِ <b>fixed-point</b> با سائقِ انرژی که هنگامِ تولیدِمثل تکامل می‌یابند. هستهٔ یکسانِ Rust
+    به WASM کامپایل شده — <b>هیچ floatای نیست</b>؛ همان seed همیشه همان حیات را می‌سازد.
+    <br>اثرانگشتِ قطعی (native = wasm): <code>7849180777723400744</code>
+  </div>
+  <div class="wrap">
+    <canvas id="c"></canvas>
+    <div class="hud" id="hud">…</div>
+    <div class="row">
+      <button id="pause">⏸ مکث</button>
+      <button id="reset">↺ بازپخش (همان seed)</button>
+      <button id="reseed">🎲 seedِ نو</button>
+      <label>سرعت <input id="speed" type="range" min="1" max="8" value="2"></label>
+    </div>
+    <div class="legend">● رنگ = نسب (genome) · روشنایی/اندازه = انرژی · نقاطِ سبز = غذا — `@` در ترمینال = `●` اینجا</div>
+  </div>
+
+<script>
+const wasmB64 = "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";
+function b64ToBytes(b64){ const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+
+let ex, W, H, cell = 18, seed = 12345, running = true, speed = 2;
+
+WebAssembly.instantiate(b64ToBytes(wasmB64), {}).then(({ instance }) => {
+  ex = instance.exports;
+  W = ex.width(); H = ex.height();
+  const cv = document.getElementById('c'); cv.width = W*cell; cv.height = H*cell;
+  const ctx = cv.getContext('2d');
+  ex.init(seed, 0);
+
+  function draw() {
+    ctx.fillStyle = '#05070c'; ctx.fillRect(0,0,cv.width,cv.height);
+    // food
+    ctx.fillStyle = '#2f6f3e';
+    for (let y=0;y<H;y++) for (let x=0;x<W;x++) if (ex.food_at(x,y)) { ctx.fillRect(x*cell+cell/2-1.5, y*cell+cell/2-1.5, 3, 3); }
+    // creatures: hue = lineage (genome), brightness/size = energy
+    const p = ex.pop();
+    for (let i=0;i<p;i++) {
+      const x = ex.cx(i), y = ex.cy(i), e = ex.cenergy(i)/65536; // 0..10
+      const t = Math.max(0, Math.min(1, e/10));
+      ctx.fillStyle = `hsl(${(i*73)%360}, ${40+50*t}%, ${28+42*t}%)`;
+      const r = cell*(0.28 + 0.16*t);
+      ctx.beginPath(); ctx.arc(x*cell+cell/2, y*cell+cell/2, r, 0, 6.2832); ctx.fill();
+    }
+    document.getElementById('hud').textContent =
+      `tick ${ex.tick()} · pop ${p} · births ${ex.births()} · deaths ${ex.deaths()} · eaten ${ex.eaten()} · seed ${seed}`;
+  }
+
+  function frame() {
+    if (running) for (let s=0;s<speed;s++) ex.step();
+    draw();
+    requestAnimationFrame(frame);
+  }
+  frame();
+
+  document.getElementById('pause').onclick = (ev) => { running = !running; ev.target.textContent = running ? '⏸ مکث' : '▶ ادامه'; };
+  document.getElementById('reset').onclick = () => { ex.init(seed, 0); };
+  document.getElementById('reseed').onclick = () => { seed = (Math.imul(seed,1103515245) + 12345) >>> 0; ex.init(seed, 0); };
+  document.getElementById('speed').oninput = (ev) => { speed = +ev.target.value; };
+});
+</script>
+</body>
+</html>

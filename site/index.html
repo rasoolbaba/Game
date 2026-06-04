@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEMIURGE — بازیِ خدا / a living P2P god-game</title>
+<meta name="description" content="DEMIURGE — a deterministic, P2P god-game. Play the live Rust→WASM prototypes in your browser.">
+<style>
+  :root { color-scheme: dark; } * { box-sizing: border-box; }
+  body { margin:0; background:radial-gradient(1200px 700px at 70% -10%, #10203a 0%, #070a10 60%); color:#cdd6e4; font:15px/1.6 system-ui,"Segoe UI",Tahoma,sans-serif; min-height:100vh; }
+  .wrap { max-width:1040px; margin:0 auto; padding:28px 18px 60px; }
+  header { text-align:center; margin-bottom:10px; }
+  h1 { font-size:30px; margin:8px 0 4px; letter-spacing:.3px; }
+  .tag { color:#8aa0c6; font-size:15px; } .en { direction:ltr; color:#6f7f9d; font-size:12.5px; margin-top:2px; }
+  .badge { display:inline-block; background:#16213a; border:1px solid #25344f; color:#cfe0ff; border-radius:999px; padding:4px 12px; font-size:12px; margin:10px 4px 0; }
+  .warn { max-width:680px; margin:14px auto 0; color:#d7a45a; font-size:12.5px; text-align:center; }
+  .grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:26px; }
+  .card { background:#0c111b; border:1px solid #1b2535; border-radius:14px; overflow:hidden; text-decoration:none; color:inherit; display:flex; flex-direction:column; transition:transform .12s, border-color .12s, box-shadow .12s; }
+  .card:hover { transform:translateY(-3px); border-color:#3a527f; box-shadow:0 12px 34px #0008; }
+  .card .thumb { aspect-ratio:16/13; background:#05080e center/cover no-repeat; border-bottom:1px solid #1b2535; }
+  .card .body { padding:12px 14px 14px; }
+  .card h3 { margin:0 0 4px; font-size:16px; } .card p { margin:0; color:#8c9bb8; font-size:12.5px; min-height:34px; }
+  .card .fp { display:block; margin-top:8px; color:#5d6b86; font-size:10.5px; direction:ltr; word-break:break-all; }
+  .card .play { display:inline-block; margin-top:10px; background:#1d2c4b; color:#dbe6fb; border:1px solid #2f456e; border-radius:8px; padding:6px 12px; font-size:13px; }
+  .feature { grid-column:1 / -1; flex-direction:row; }
+  .feature .thumb { aspect-ratio:auto; width:46%; border-bottom:none; border-inline-start:1px solid #1b2535; }
+  .feature .body { flex:1; display:flex; flex-direction:column; justify-content:center; padding:22px 24px; }
+  .feature h3 { font-size:21px; } .feature p { font-size:13.5px; min-height:0; }
+  .feature .play { background:#2a4170; border-color:#4d6fb0; padding:9px 18px; font-size:14px; align-self:flex-start; }
+  section.note { margin-top:30px; background:#0b1019; border:1px solid #1b2535; border-radius:12px; padding:16px 18px; color:#9fb0cc; font-size:13px; }
+  section.note h2 { font-size:15px; margin:0 0 8px; color:#e6edf7; }
+  a.lnk { color:#7fa6e8; } footer { text-align:center; color:#5d6b86; font-size:12px; margin-top:30px; direction:ltr; }
+  @media (max-width:740px){ .grid{ grid-template-columns:1fr; } .feature{ flex-direction:column; } .feature .thumb{ width:100%; aspect-ratio:16/11; border-inline-start:none; border-bottom:1px solid #1b2535; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div style="font-size:42px">⛅</div>
+    <h1>DEMIURGE</h1>
+    <div class="tag">یک بازیِ خدای زنده، P2P، و قطعی</div>
+    <div class="en">a living, peer-to-peer, deterministic god-game · Rust → WASM</div>
+    <div>
+      <span class="badge">✅ قطعی: native == wasm</span>
+      <span class="badge">🦀 Rust → WASM</span>
+      <span class="badge">📦 خودبسنده (بدون سرور)</span>
+    </div>
+    <p class="warn">⚠️ صداقت (ADR-0003): این‌ها نمونه‌های اصیل و باکیفیت‌اند، نه ادعای اختراعِ نو. ژانرها شناخته‌شده‌اند؛ ارزشِ ما اجرای صادق، قطعی و قابلِ‌بازبینی است.</p>
+  </header>
+
+  <main class="grid">
+    <a class="card feature" href="./godgame.html">
+      <div class="thumb" style="background-image:url('./field/godgame-after-verses.png')"></div>
+      <div class="body">
+        <h3>⛅ بازیِ خدا — نفوذِ غیرمستقیم</h3>
+        <p>تو فرمان نمی‌دهی؛ <b>الهام می‌فرستی</b>. آیه نازل کن، برکت و گرما ببخش. مردمانِ عصبی <b>آزادند</b>؛ نیایش (قدرتِ تو) از مؤمنانت می‌جوشد. — <i>the playable god-loop.</i></p>
+        <span class="fp">determinism fingerprint (with interactive acts): 10683066695076585027</span>
+        <span class="play">▶ بازی کن / Play</span>
+      </div>
+    </a>
+
+    <a class="card" href="./neural-life.html">
+      <div class="thumb" style="background-image:url('./field/neural-life.png')"></div>
+      <div class="body">
+        <h3>🧬 حیاتِ عصبی</h3>
+        <p>موجوداتِ عصبیِ fixed-point که هنگامِ تولیدمثل تکامل می‌یابند.</p>
+        <span class="fp">fp 7849180777723400744</span>
+        <span class="play">▶ بازی کن</span>
+      </div>
+    </a>
+
+    <a class="card" href="./carbon-world.html">
+      <div class="thumb" style="background-image:url('./field/carbon-world.png')"></div>
+      <div class="body">
+        <h3>🌍 جهانِ کربنی</h3>
+        <p>زمین/اقلیم/زیست‌بومِ رویه‌ای از یک seed (ویتاکر + fBm).</p>
+        <span class="fp">fp 13064313817751894589</span>
+        <span class="play">▶ بازی کن</span>
+      </div>
+    </a>
+
+    <a class="card" href="./noosphere.html">
+      <div class="thumb" style="background-image:url('./field/noosphere.png')"></div>
+      <div class="body">
+        <h3>🧬🌍 نوسفر</h3>
+        <p>حیات + جهان + باور؛ رنگِ هر موجود = بردارِ باورش. (۴ کیشِ هم‌زیست)</p>
+        <span class="fp">fp 9846975228546937950</span>
+        <span class="play">▶ بازی کن</span>
+      </div>
+    </a>
+  </main>
+
+  <section class="note">
+    <h2>این چیست؟ / What is this?</h2>
+    یک بازیِ استراتژیکِ خدایی که در آن خدا (بازیکن) <b>غیرمستقیم</b> بر جمعیتی از موجوداتِ عصبیِ زنده اثر می‌گذارد.
+    کلِّ شبیه‌سازی در یک هستهٔ Rust نوشته شده که هم به native و هم به WASM کامپایل می‌شود و <b>بیت‌به‌بیت نتیجهٔ یکسان</b> می‌دهد —
+    شالودهٔ هم‌گام‌سازیِ P2P. این صفحه چهار نمونهٔ زندهٔ مرحلهٔ ۱ را میزبانی می‌کند؛ هر کدام خودبسنده است (wasm درون‌نشانده، بدون سرور).
+    <br><br>
+    🔍 <b>وضعیتِ میدانی:</b> اسکرین‌شات‌های واقعی + گزارشِ تیمِ QA در پوشهٔ <code>field-reports/</code> مخزن.
+    · منبع و طرحِ کامل: <a class="lnk" href="https://github.com/rasoolbaba/Game">github.com/rasoolbaba/Game</a>
+  </section>
+
+  <footer>DEMIURGE · Stage 1 prototypes · deterministic Rust→WASM · honest by protocol (ADR-0003)</footer>
+</div>
+</body>
+</html>
