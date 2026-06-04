@@ -12,7 +12,8 @@
   .warn { color:#d7a45a; font-size:11.5px; max-width:640px; text-align:center; margin-bottom:10px; }
   .wrap { background:#0c111b; border:1px solid #1b2535; border-radius:14px; padding:14px; box-shadow:0 10px 40px #0009; }
   canvas { display:block; border-radius:8px; image-rendering:pixelated; width:min(92vw,704px); height:auto; }
-  .hud { font-variant-numeric:tabular-nums; margin-top:10px; color:#9fb0cc; font-size:12.5px; direction:ltr; text-align:left; }
+  .hud { font-variant-numeric:tabular-nums; margin-top:12px; color:#c2d0ea; font-size:13px; direction:ltr; text-align:left; background:#0a1120; border:1px solid #1b2740; border-radius:8px; padding:7px 11px; }
+  .hud b { color:#eaf1fb; font-weight:650; } .muted { color:#6f7d97; }
   .row { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
   button { background:#16213a; color:#d7e2f5; border:1px solid #25344f; border-radius:8px; padding:7px 12px; cursor:pointer; font-size:13px; }
   button:hover { background:#1d2c4b; } label { color:#8b99b5; font-size:12px; }
@@ -43,15 +44,29 @@ WebAssembly.instantiate(b64(wasmB64),{}).then(({instance})=>{
   ex=instance.exports; W=ex.width(); H=ex.height();
   const cv=document.getElementById('c'); cv.width=W*cell; cv.height=H*cell; const ctx=cv.getContext('2d');
   function reinit(){ ex.init(worldSeed>>>0,0,simSeed>>>0,0,beta); }
+  const cw=cv.width, ch=cv.height;
+  const vig=ctx.createRadialGradient(cw/2,ch*0.42,ch*0.16,cw/2,ch/2,ch*0.82);
+  vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,0.28)');
+  function orbRGB(x,y,r,cr,cg,cb,glow,ring){
+    if(glow>0){ ctx.shadowColor=`rgba(${cr},${cg},${cb},0.9)`; ctx.shadowBlur=glow; }
+    const g=ctx.createRadialGradient(x-r*0.34,y-r*0.4,r*0.1,x,y,r);
+    g.addColorStop(0,`rgb(${Math.min(255,cr+75)},${Math.min(255,cg+75)},${Math.min(255,cb+75)})`);
+    g.addColorStop(0.55,`rgb(${cr},${cg},${cb})`);
+    g.addColorStop(1,`rgb(${cr*0.42|0},${cg*0.42|0},${cb*0.42|0})`);
+    ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fillStyle=g; ctx.fill(); ctx.shadowBlur=0;
+    ctx.lineWidth=Math.max(1,r*0.2); ctx.strokeStyle=ring||'rgba(2,5,10,0.85)'; ctx.stroke();
+  }
+
   function draw(){
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const b=ex.biome_at(x,y); const c=BG[b]; ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x*cell,y*cell,cell,cell); }
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const c=BG[ex.biome_at(x,y)]; ctx.fillStyle=`rgb(${c[0]*0.7|0},${c[1]*0.7|0},${c[2]*0.7|0})`; ctx.fillRect(x*cell,y*cell,cell,cell); }
     const p=ex.pop(); const fh=new Array(8).fill(0);
-    for(let i=0;i<p;i++){ const x=ex.cx(i),y=ex.cy(i); fh[ex.faith(i)]++;
+    for(let i=0;i<p;i++){ const x=ex.cx(i)*cell+cell/2,y=ex.cy(i)*cell+cell/2; fh[ex.faith(i)]++;
       const r=ex.belief(i,0)*255/65536|0, g=ex.belief(i,1)*255/65536|0, bl=ex.belief(i,2)*255/65536|0;
-      ctx.fillStyle=`rgb(${r},${g},${bl})`; ctx.beginPath(); ctx.arc(x*cell+cell/2,y*cell+cell/2,cell*0.42,0,6.2832); ctx.fill(); }
+      orbRGB(x,y,cell*0.46,r,g,bl,0); }
+    ctx.fillStyle=vig; ctx.fillRect(0,0,cw,ch);
     const faiths=fh.filter(v=>v>0.05*p).length;
     const fp=(BigInt(ex.fp_hi()>>>0)<<32n)|BigInt(ex.fp_lo()>>>0);
-    document.getElementById('hud').textContent=`tick ${ex.tickn()} · pop ${p} · coexisting faiths ${faiths} · world ${worldSeed} · creatures ${simSeed} · β ${beta?'on':'off'} · fp ${fp}`;
+    document.getElementById('hud').innerHTML=`<b>tick</b> ${ex.tickn()} · <b>pop</b> ${p} · <b>faiths</b> ${faiths} · <span class="muted">world ${worldSeed} · creatures ${simSeed} · β ${beta?'on':'off'} · fp ${fp}</span>`;
   }
   function frame(){ if(running) for(let s=0;s<speed;s++) ex.step(); draw(); requestAnimationFrame(frame); }
   reinit(); frame();

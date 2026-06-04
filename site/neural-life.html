@@ -12,7 +12,8 @@
   .sub { color: #7d8aa5; font-size: 12px; margin-bottom: 12px; text-align: center; max-width: 560px; }
   .wrap { background: #0c111b; border: 1px solid #1b2535; border-radius: 14px; padding: 14px; box-shadow: 0 10px 40px #0009; }
   canvas { display: block; border-radius: 8px; background: #05070c; image-rendering: pixelated; }
-  .hud { font-variant-numeric: tabular-nums; margin-top: 10px; color: #9fb0cc; font-size: 12.5px; min-height: 18px; direction: ltr; text-align: left; }
+  .hud { font-variant-numeric: tabular-nums; margin-top: 12px; color: #c2d0ea; font-size: 13px; min-height: 18px; direction: ltr; text-align: left; background:#0a1120; border:1px solid #1b2740; border-radius:8px; padding:7px 11px; }
+  .hud b { color:#eaf1fb; font-weight:650; } .muted { color:#6f7d97; }
   .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; justify-content: center; }
   button { background: #16213a; color: #d7e2f5; border: 1px solid #25344f; border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 13px; }
   button:hover { background: #1d2c4b; }
@@ -55,22 +56,42 @@ WebAssembly.instantiate(b64ToBytes(wasmB64), {}).then(({ instance }) => {
   const ctx = cv.getContext('2d');
   ex.init(seed, 0);
 
+  // --- render helpers (presentation only; never touch the deterministic sim) ---
+  const cw = cv.width, ch = cv.height;
+  const bgGrad = ctx.createLinearGradient(0,0,0,ch);
+  bgGrad.addColorStop(0,'#0a1020'); bgGrad.addColorStop(0.55,'#070b14'); bgGrad.addColorStop(1,'#04060b');
+  const vig = ctx.createRadialGradient(cw/2,ch*0.42,ch*0.16, cw/2,ch/2,ch*0.78);
+  vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,0.5)');
+  function orb(x,y,r,h,s,l,glow){
+    if(glow>0){ ctx.shadowColor=`hsla(${h},${s}%,${Math.min(92,l+14)}%,0.9)`; ctx.shadowBlur=glow; }
+    const g=ctx.createRadialGradient(x-r*0.35,y-r*0.4,r*0.12, x,y,r);
+    g.addColorStop(0,`hsl(${h},${s}%,${Math.min(94,l+32)}%)`);
+    g.addColorStop(0.55,`hsl(${h},${s}%,${l}%)`);
+    g.addColorStop(1,`hsl(${h},${Math.max(18,s-14)}%,${Math.max(7,l-24)}%)`);
+    ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fillStyle=g; ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.lineWidth=Math.max(1,r*0.16); ctx.strokeStyle='rgba(3,6,12,0.8)'; ctx.stroke();
+  }
+
   function draw() {
-    ctx.fillStyle = '#05070c'; ctx.fillRect(0,0,cv.width,cv.height);
-    // food
-    ctx.fillStyle = '#2f6f3e';
-    for (let y=0;y<H;y++) for (let x=0;x<W;x++) if (ex.food_at(x,y)) { ctx.fillRect(x*cell+cell/2-1.5, y*cell+cell/2-1.5, 3, 3); }
-    // creatures: hue = lineage (genome), brightness/size = energy
+    ctx.fillStyle = bgGrad; ctx.fillRect(0,0,cw,ch);
+    // food — bright green glowing diamonds, visually distinct from round creatures
+    ctx.save(); ctx.shadowColor='rgba(110,255,150,0.75)'; ctx.shadowBlur=6; ctx.fillStyle='#62ffa2';
+    for (let y=0;y<H;y++) for (let x=0;x<W;x++) if (ex.food_at(x,y)) {
+      const cx=x*cell+cell/2, cy=y*cell+cell/2, s=cell*0.17;
+      ctx.beginPath(); ctx.moveTo(cx,cy-s); ctx.lineTo(cx+s,cy); ctx.lineTo(cx,cy+s); ctx.lineTo(cx-s,cy); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+    // creatures: hue = lineage (genome); brightness/size/glow = energy
     const p = ex.pop();
     for (let i=0;i<p;i++) {
-      const x = ex.cx(i), y = ex.cy(i), e = ex.cenergy(i)/65536; // 0..10
-      const t = Math.max(0, Math.min(1, e/10));
-      ctx.fillStyle = `hsl(${(i*73)%360}, ${40+50*t}%, ${28+42*t}%)`;
-      const r = cell*(0.28 + 0.16*t);
-      ctx.beginPath(); ctx.arc(x*cell+cell/2, y*cell+cell/2, r, 0, 6.2832); ctx.fill();
+      const x = ex.cx(i)*cell+cell/2, y = ex.cy(i)*cell+cell/2;
+      const e = ex.cenergy(i)/65536, t = Math.max(0, Math.min(1, e/10));
+      orb(x, y, cell*(0.30+0.16*t), (i*73)%360, 52+30*t, 40+22*t, t>0.72?7*t:0);
     }
-    document.getElementById('hud').textContent =
-      `tick ${ex.tick()} · pop ${p} · births ${ex.births()} · deaths ${ex.deaths()} · eaten ${ex.eaten()} · seed ${seed}`;
+    ctx.fillStyle = vig; ctx.fillRect(0,0,cw,ch);
+    document.getElementById('hud').innerHTML =
+      `<b>tick</b> ${ex.tick()} · <b>pop</b> ${p} · births ${ex.births()} · deaths ${ex.deaths()} · eaten ${ex.eaten()} · <span class="muted">seed ${seed}</span>`;
   }
 
   function frame() {

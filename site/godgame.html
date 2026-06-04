@@ -11,7 +11,7 @@
   .warn { color:#d7a45a; font-size:11px; max-width:660px; text-align:center; margin-bottom:10px; }
   .wrap { background:#0c111b; border:1px solid #1b2535; border-radius:14px; padding:14px; box-shadow:0 10px 40px #0009; }
   canvas { display:block; border-radius:8px; image-rendering:pixelated; width:min(94vw,704px); height:auto; cursor:crosshair; }
-  .hud { font-variant-numeric:tabular-nums; margin-top:10px; color:#9fb0cc; font-size:13px; direction:ltr; text-align:left; display:flex; gap:16px; flex-wrap:wrap; }
+  .hud { font-variant-numeric:tabular-nums; margin-top:12px; color:#c2d0ea; font-size:13px; direction:ltr; text-align:left; display:flex; gap:16px; flex-wrap:wrap; background:#0a1120; border:1px solid #1b2740; border-radius:8px; padding:8px 12px; }
   .hud b { color:#e6edf7; } .pow { color:#ffd479; }
   .row { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
   button { background:#16213a; color:#d7e2f5; border:1px solid #25344f; border-radius:8px; padding:7px 12px; cursor:pointer; font-size:13px; }
@@ -56,15 +56,33 @@ WebAssembly.instantiate(b64(wasmB64),{}).then(({instance})=>{
   const cv=document.getElementById('c'); cv.width=W*cell; cv.height=H*cell; const ctx=cv.getContext('2d');
   function reinit(){ ex.init(worldSeed>>>0,0,simSeed>>>0,0,1, ...PRESETS.red); }
   function believer(i){ let d=0; for(let k=0;k<3;k++) d+=Math.abs(ex.belief(i,k)-ex.patron(k)); return (65536-d/3)>=0.70*65536; }
+  const cw=cv.width, ch=cv.height;
+  const vig=ctx.createRadialGradient(cw/2,ch*0.42,ch*0.16,cw/2,ch/2,ch*0.82);
+  vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,0.28)');
+  function orbRGB(x,y,r,cr,cg,cb,glow,ring){
+    if(glow>0){ ctx.shadowColor=`rgba(${cr},${cg},${cb},0.95)`; ctx.shadowBlur=glow; }
+    const g=ctx.createRadialGradient(x-r*0.34,y-r*0.4,r*0.1,x,y,r);
+    g.addColorStop(0,`rgb(${Math.min(255,cr+75)},${Math.min(255,cg+75)},${Math.min(255,cb+75)})`);
+    g.addColorStop(0.55,`rgb(${cr},${cg},${cb})`);
+    g.addColorStop(1,`rgb(${cr*0.42|0},${cg*0.42|0},${cb*0.42|0})`);
+    ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fillStyle=g; ctx.fill(); ctx.shadowBlur=0;
+    ctx.lineWidth=Math.max(1,r*0.2); ctx.strokeStyle=ring||'rgba(2,5,10,0.8)'; ctx.stroke();
+  }
+
   function draw(){
-    for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const c=BG[ex.biome_at(x,y)]; ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x*cell,y*cell,cell,cell); }
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const c=BG[ex.biome_at(x,y)]; ctx.fillStyle=`rgb(${c[0]*0.7|0},${c[1]*0.7|0},${c[2]*0.7|0})`; ctx.fillRect(x*cell,y*cell,cell,cell); }
     const p=ex.pop(); let bel=0;
-    for(let i=0;i<p;i++){ const x=ex.cx(i),y=ex.cy(i);
+    for(let i=0;i<p;i++){ const x=ex.cx(i)*cell+cell/2,y=ex.cy(i)*cell+cell/2;
       const r=ex.belief(i,0)*255/65536|0,g=ex.belief(i,1)*255/65536|0,b=ex.belief(i,2)*255/65536|0;
-      ctx.fillStyle=`rgb(${r},${g},${b})`; ctx.beginPath(); ctx.arc(x*cell+cell/2,y*cell+cell/2,cell*0.42,0,6.2832); ctx.fill();
-      if(believer(i)){ bel++; ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=1.4; ctx.stroke(); }
+      const isB=believer(i); if(isB)bel++;
+      orbRGB(x,y,cell*(isB?0.5:0.42),r,g,b,isB?7:0,isB?'rgba(255,255,255,0.92)':'rgba(2,5,10,0.8)');
     }
-    if(flash){ ctx.strokeStyle=flash.ok?'rgba(255,220,120,0.9)':'rgba(255,80,80,0.9)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(flash.x*cell+cell/2,flash.y*cell+cell/2,cell*5,0,6.2832); ctx.stroke(); if(--flash.t<=0)flash=null; }
+    if(flash){ const fx=flash.x*cell+cell/2, fy=flash.y*cell+cell/2, k=1-flash.t/12;
+      ctx.save(); const col=flash.ok?`rgba(255,210,110,${0.9*(1-k)})`:`rgba(255,90,90,${0.9*(1-k)})`;
+      ctx.strokeStyle=col; ctx.shadowColor=col; ctx.shadowBlur=14; ctx.lineWidth=2.6;
+      ctx.beginPath(); ctx.arc(fx,fy,cell*(1.4+5.6*k),0,6.2832); ctx.stroke(); ctx.restore();
+      if(--flash.t<=0)flash=null; }
+    ctx.fillStyle=vig; ctx.fillRect(0,0,cw,ch);
     document.getElementById('dev').textContent=ex.devotion();
     document.getElementById('bel').textContent=bel;
     document.getElementById('belp').textContent=p?Math.round(bel*100/p):0;
