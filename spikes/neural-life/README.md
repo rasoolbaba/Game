@@ -30,3 +30,12 @@ rustc -O life.rs -o life
 - شبکهٔ خطی+ReLU است (tanhِ LUT لازم نشد)؛ نسخهٔ بعد می‌تواند از tanhِ قطعیِ SPIKE-COMPARE استفاده کند.
 
 ارجاع: `ledgers/INVENTIONS.md` INV-0004 · `spikes/spike-compare/` (هستهٔ قطعی).
+
+## مرورگر / Browser viewer (Rust→WASM)
+همان هستهٔ مشترک (`core_sim.rs`) به WASM کامپایل می‌شود و در `<canvas>` رندر می‌شود — رنگ=نسب، روشنایی/اندازه=انرژی، نقاطِ سبز=غذا.
+- **دیدن:** فایلِ **`web/neural-life.html`** را در هر مرورگری باز کنید (خودبسنده، wasm جاسازی‌شده به‌صورتِ base64، **بدونِ سرور**).
+- **ساخت:** `rustc --target wasm32-unknown-unknown -C opt-level=z -C lto=fat -C panic=abort -C strip=symbols life_wasm.rs -o web/life.wasm` → `node web/build.js`.
+- **قطعیتِ میان‌سکویی (VERIFIED ✅):** `node web/verify.js <native_fp>` نشان می‌دهد اثرانگشتِ wasm == native == `7849180777723400744`. یعنی **همان حیات روی هر ماشینی بیت‌به‌بیت بازتولید می‌شود** — شرطِ لازمِ جهان‌های مستقلِ P2P (INV-0002) و پاسخی مستقیم به هشدارِ تیمِ قرمز دربارهٔ ناسازگاریِ WASM.
+
+### فایل‌ها / Files
+`core_sim.rs` هستهٔ مشترکِ no_std · `life.rs` بیلدِ native · `life_wasm.rs` صادراتِ wasm · `web/` بیننده + راستی‌آزما.
