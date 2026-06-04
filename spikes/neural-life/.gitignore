@@ -1,0 +1,2 @@
+# compiled binary — regenerate via: rustc -O life.rs -o life
+/life
