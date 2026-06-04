@@ -1,0 +1,40 @@
+# --- Rust ---
+/target/
+**/target/
+Cargo.lock.bak
+*.pdb
+
+# --- Node / TypeScript ---
+node_modules/
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+.npm/
+.pnpm-store/
+
+# --- WASM / build artifacts ---
+*.wasm.map
+pkg/
+wasm-pack.log
+
+# --- Editor / OS ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# --- Secrets / local env (NEVER commit) ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.*
+
+# --- Local agent scratch (memory & ledgers ARE committed; scratch is not) ---
+memory/**/_scratch/
+*.tmp
