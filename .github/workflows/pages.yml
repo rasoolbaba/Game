@@ -18,6 +18,12 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Opt into Node.js 24 ahead of GitHub's 2026-06-16 forced migration so the Pages
+# actions are validated on Node 24 before the cutover (also silences the Node 20
+# deprecation warning).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

@@ -92,3 +92,15 @@
 - نوع: گذرِ تیمِ گرافیک/QA (sub-agentِ مستقل، در محدوده ماند: فقط ۴ TEAM-LOG + FIELD-REPORT) + حل‌وفصلِ رهبر.
 - یافته‌ها (۳ پرچم): #۱ ناهم‌فریمیِ شواهد (manifest↔پیکسل) → ✅ ابزار فریم‌صادق شد (انجمادِ sim)، بازتولید و با چشم تأیید شد. #۲ قاب‌بندیِ «۹٪» overclaim بود → پذیرفته؛ واقعیت: مؤمنانِ مطلق ۷۷→۷۸ (ثابت)، درصد به‌خاطرِ رقیق‌شدگیِ جمعیت افت کرد. #۳ تورمِ نیایش → تأیید، برای گامِ بعد ثبت (EXP-0014).
 - حکم: PASS پس از اصلاح. پروتکل کار کرد — تیمِ قرمز overclaimِ خودِ رهبر را گرفت و رهبر بی‌درنگ تصحیح کرد. ارجاع: FIELD-REPORT.md, RESOLUTION.md.
+
+### AUDIT-0011 — 2026-06-04 — استقرارِ عمومیِ نمونه‌ها روی GitHub Pages
+- ناظر بر: `.github/workflows/pages.yml` و استقرارِ زندهٔ `site/` پس از ادغامِ PR #1 به `main`.
+- نوع: خودبازبینیِ رهبر (عملیاتِ استقرار — بدونِ ادعای نوآوری).
+- شواهدِ دیده‌شده: لاگِ job استقرار (run #5، کامیتِ `be0ed82`): «Created deployment… / Reported success! / Evaluated environment url: https://rasoolbaba.github.io/Game/». هر سه مرحلهٔ Configure/Upload/Deploy سبز.
+- یافته‌ها:
+  1. ✅ استقرار از سمتِ GitHub موفق گزارش شد؛ آدرسِ عمومی `https://rasoolbaba.github.io/Game/` — `VERIFIED` (شاهدِ لاگ).
+  2. ⚠️ رندرِ بصریِ صفحه از داخلِ سندباکس **تأیید نشد** (خروجی مسدود: example.com و github.io هر دو HTTP 403) → «نمایشِ درست برای بازدیدکننده» = `UNKNOWN ❓` تا تأییدِ چشمیِ حاکم. صادقانه به‌جای ادعای کاذبِ «دیدم کار می‌کند».
+  3. ✅ ضدِّ تضاد: workflowِ موازیِ `jekyll-gh-pages.yml` حذف شد؛ تنها مسیرِ استقرار `pages.yml` ماند (هم‌سو با کامیتِ حاکم «single Pages workflow»).
+  4. ℹ️ تنظیماتِ مخزن که حاکم فعال کرد: Pages→Source = GitHub Actions و Workflow permissions = read-write. مانعِ branch-protectionِ محیطِ github-pages با ادغام به `main` رفع شد.
+- اقدامِ این دور: رفعِ اخطارِ Node 20 (مهاجرتِ اجباری به Node 24 از 2026-06-16) با افزودنِ `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` — اعتبارسنجیِ اکشن‌ها روی Node 24 پیش از کات‌اور.
+- حکم: PASS (عملیات) · ارجاع به حاکم؟ بله — برای تأییدِ چشمیِ نهاییِ صفحهٔ زنده.
