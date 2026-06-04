@@ -46,3 +46,16 @@
 - حکم: **PASS ✅**
 - اقدامِ لازم: هیچ مسدودکننده. پیگیری‌های اختیاری در RESULTS.md §۶ (قطعیتِ میان‌ماشینی، exp/softmax، اندازهٔ wasm).
 - ارجاع به حاکم؟ بله — برای تصویبِ نهاییِ پشته با شاهد.
+
+### AUDIT-0005 — 2026-06-04 — ممیزیِ دفترِ تحقیقِ مرحلهٔ ۱
+- ناظر بر: docs/research/STAGE1-strategy-games.md + INV-0003..0008.
+- یافته‌ها: حکم **PASS ✅**.
+  1. صداقتِ تازگی: همه DISCLOSED با اذعان به پیشینه (Hopfield/NEAT/کارما-جهان) — بدونِ تورمِ C4.
+  2. کپی‌رایت (C5): فقط لینک، بدونِ کپیِ تصویر — پاک.
+  3. citationها: WebFetchِ زیرـایجنت 403 شد (شبکهٔ سندباکس)، نه 404 → UNKNOWN، نه FAIL.
+- اقدامِ رهبر (تأییدِ مستقل با WebSearch):
+  • Creatures (1996، Steve Grand / Millennium): Norn با ~۹۵۲ نورون + بیوشیمی + ژنتیک → **VERIFIED ✅** (en.wikipedia, researchgate, howwegettonext).
+  • EVE TiDi: بیشینهٔ کندیِ ۱۰٪ (۱s→۱۰s) → **VERIFIED ✅** (eveonline.com «Introducing TiDi», eveuniversity).
+- رفع‌شده: فرمولِ RimWorld → ASSUMED ⚠️؛ شاهدِ INV-0004 → مسیرِ واقعیِ spikes/spike-compare/RESULTS.md.
+- باقی: From Dust مستقل re-fetch نشد (citationِ گروه باقی، هم‌سو با طراحیِ مستندِ بازی) → UNKNOWN تا تأیید.
+- حکم: PASS ✅ · ارجاع به حاکم؟ خیر (تغییرات کوچک، هم‌سو).
