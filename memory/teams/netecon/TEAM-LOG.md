@@ -12,3 +12,8 @@
 - محتوا: WebRTC + کشفِ DHT (libp2p ASSUMED ⚠️)؛ event-sourced lockstep + CRDT «گذرنامه» برای مسافر. ایده: **«اثباتِ اقامت»** برای اقتصادِ خالق با مقاومتِ sybil از راهِ ثبتِ جهانِ staked.
 - برچسبِ حقیقت: ASSUMED ⚠️ (نیاز به اسپایکِ NAT/کشف؛ ملاحظاتِ حقوقیِ توکن به مرحلهٔ ۳)
 - ارجاع‌ها: BRAINSTORM-001, ADR-0001
+
+### MEM-netecon-0003 — 2026-06-04 — ریسکِ COOP/COEP روی میزبانیِ استاتیک
+- نوع: یافته
+- محتوا: GitHub Pages هدرهای COOP/COEP (لازم برای SharedArrayBuffer/threadهای WASM) را پیش‌فرض ست نمی‌کند. راهکارِ نامزد: `coi-serviceworker` یا میزبانیِ جایگزین. (`ASSUMED ⚠️`، اسپایک)
+- ارجاع‌ها: ADR-0001§۵, 05-VISUALIZATION-PLAN, AUDIT-0003
