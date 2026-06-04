@@ -1,0 +1,5 @@
+# Throwaway compiled artifacts — regenerate via RESULTS.md §7
+/rust/sim
+/rust/sim_wasm.wasm
+/as/build/
+node_modules/

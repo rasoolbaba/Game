@@ -1,0 +1,11 @@
+{
+  "name": "spike-compare-as",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "asbuild": "asc sim.ts --outFile build/sim.wasm --bindings esm --optimize --runtime stub"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.28.18"
+  }
+}

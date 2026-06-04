@@ -19,3 +19,9 @@
 - شواهد: `docs/decisions/BRAINSTORM-001-tech-stack.md`, `ADR-0001-tech-stack.md`
 - برچسبِ حقیقت: ASSUMED ⚠️ (تا عبور از SPIKE-0/SPIKE-COMPARE و تصویب)
 - ارجاع‌ها: ADR-0001, AUDIT-0002, EXP-0003
+
+### MEM-COUNCIL-0004 — 2026-06-04 — شواهدِ SPIKE-COMPARE
+- نوع: یافته/تصمیم(موقت)
+- محتوا: قطعیت در هر چهار پیاده‌سازی برقرار؛ Rust برترِ کارایی. پشتهٔ Rust+TS اکنون شاهد‌محور است، منتظرِ تصویبِ حاکم. باقی‌مانده: SPIKE-0.
+- شواهد: spikes/spike-compare/RESULTS.md, AUDIT-0004
+- برچسبِ حقیقت: VERIFIED ✅ (قطعیت/کاراییِ این ماشین) · ارجاع: ADR-0001§۸, EXP-0005
