@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEMIURGE — بازیِ خدا / the god-game loop</title>
+<style>
+  :root { color-scheme: dark; } * { box-sizing: border-box; }
+  body { margin:0; background:#070a10; color:#cdd6e4; font:14px/1.5 system-ui,"Segoe UI",Tahoma,sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:16px; }
+  h1 { font-size:18px; margin:4px 0 2px; } .sub { color:#7d8aa5; font-size:12px; margin-bottom:6px; text-align:center; max-width:660px; }
+  .warn { color:#d7a45a; font-size:11px; max-width:660px; text-align:center; margin-bottom:10px; }
+  .wrap { background:#0c111b; border:1px solid #1b2535; border-radius:14px; padding:14px; box-shadow:0 10px 40px #0009; }
+  canvas { display:block; border-radius:8px; image-rendering:pixelated; width:min(94vw,704px); height:auto; cursor:crosshair; }
+  .hud { font-variant-numeric:tabular-nums; margin-top:10px; color:#9fb0cc; font-size:13px; direction:ltr; text-align:left; display:flex; gap:16px; flex-wrap:wrap; }
+  .hud b { color:#e6edf7; } .pow { color:#ffd479; }
+  .row { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
+  button { background:#16213a; color:#d7e2f5; border:1px solid #25344f; border-radius:8px; padding:7px 12px; cursor:pointer; font-size:13px; }
+  button:hover { background:#1d2c4b; } button.sel { background:#2a4170; border-color:#4d6fb0; }
+  .swatch { width:16px; height:16px; border-radius:4px; display:inline-block; vertical-align:middle; border:1px solid #0007; }
+  label { color:#8b99b5; font-size:12px; }
+</style>
+</head>
+<body>
+  <h1>⛅ بازیِ خدا — نفوذِ غیرمستقیم</h1>
+  <div class="sub">تو فرمان نمی‌دهی؛ <b>الهام می‌فرستی</b>. ابزار را برگزین و روی نقشه کلیک کن. مردمانِ عصبی <b>آزادند</b> — آیه‌ات شاید بگیرد، شاید نه. <b>نیایش (قدرت)</b> از مؤمنانت می‌جوشد.</div>
+  <div class="warn">⚠️ صداقت (ADR-0003): این یک ژانرِ شناخته‌شده است (مثلِ Black&White)، نه اختراعِ نو — اما اصیل، قطعی (native==wasm) و از آنِ ماست.</div>
+  <div class="wrap">
+    <canvas id="c"></canvas>
+    <div class="hud">
+      <span>🙏 نیایش: <b class="pow" id="dev">0</b></span>
+      <span>👥 مؤمنان: <b id="bel">0</b> (<span id="belp">0</span>%)</span>
+      <span>🌱 جمعیت: <b id="pop">0</b></span>
+      <span>⏱ <b id="tick">0</b></span>
+    </div>
+    <div class="row">
+      <span>ابزار:</span>
+      <button id="t_verse" class="sel">📜 آیه (۳۰۰)</button>
+      <button id="t_bounty">🌾 خوراک (۲۰۰)</button>
+      <button id="t_warm">🔥 گرما (۱۵۰)</button>
+      <span style="margin-inline-start:10px">ایمانِ تو:</span>
+      <button id="p_red"><span class="swatch" style="background:rgb(230,50,50)"></span></button>
+      <button id="p_grn"><span class="swatch" style="background:rgb(50,205,80)"></span></button>
+      <button id="p_blu"><span class="swatch" style="background:rgb(60,80,235)"></span></button>
+      <button id="restart" style="margin-inline-start:10px">↺ جهانِ نو</button>
+      <button id="pause">⏸</button>
+    </div>
+  </div>
+<script>
+const wasmB64="__WASM_B64__";
+function b64(s){const x=atob(s),u=new Uint8Array(x.length);for(let i=0;i<x.length;i++)u[i]=x.charCodeAt(i);return u;}
+const BG=[[10,22,42],[26,64,110],[120,108,70],[58,92,46],[34,68,40],[24,74,46],[120,128,118],[78,74,68]];
+const PRESETS={red:[58982,13107,13107],grn:[13107,52429,19660],blu:[13107,19660,58982]};
+let ex,W,H,cell=11,worldSeed=7,simSeed=1,running=true,tool='verse',flash=null;
+WebAssembly.instantiate(b64(wasmB64),{}).then(({instance})=>{
+  ex=instance.exports; W=ex.width(); H=ex.height();
+  const cv=document.getElementById('c'); cv.width=W*cell; cv.height=H*cell; const ctx=cv.getContext('2d');
+  function reinit(){ ex.init(worldSeed>>>0,0,simSeed>>>0,0,1, ...PRESETS.red); }
+  function believer(i){ let d=0; for(let k=0;k<3;k++) d+=Math.abs(ex.belief(i,k)-ex.patron(k)); return (65536-d/3)>=0.70*65536; }
+  function draw(){
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const c=BG[ex.biome_at(x,y)]; ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x*cell,y*cell,cell,cell); }
+    const p=ex.pop(); let bel=0;
+    for(let i=0;i<p;i++){ const x=ex.cx(i),y=ex.cy(i);
+      const r=ex.belief(i,0)*255/65536|0,g=ex.belief(i,1)*255/65536|0,b=ex.belief(i,2)*255/65536|0;
+      ctx.fillStyle=`rgb(${r},${g},${b})`; ctx.beginPath(); ctx.arc(x*cell+cell/2,y*cell+cell/2,cell*0.42,0,6.2832); ctx.fill();
+      if(believer(i)){ bel++; ctx.strokeStyle='rgba(255,255,255,0.85)'; ctx.lineWidth=1.4; ctx.stroke(); }
+    }
+    if(flash){ ctx.strokeStyle=flash.ok?'rgba(255,220,120,0.9)':'rgba(255,80,80,0.9)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(flash.x*cell+cell/2,flash.y*cell+cell/2,cell*5,0,6.2832); ctx.stroke(); if(--flash.t<=0)flash=null; }
+    document.getElementById('dev').textContent=ex.devotion();
+    document.getElementById('bel').textContent=bel;
+    document.getElementById('belp').textContent=p?Math.round(bel*100/p):0;
+    document.getElementById('pop').textContent=p;
+    document.getElementById('tick').textContent=ex.tickn();
+  }
+  function frame(){ if(running){ ex.step(); } draw(); requestAnimationFrame(frame); }
+  reinit(); frame();
+  function cast(x,y){ let ok = tool==='verse'?ex.verse(x,y): tool==='bounty'?ex.bounty(x,y): ex.warm(x,y); flash={x,y,ok:!!ok,t:12}; }
+  cv.addEventListener('click',(ev)=>{ const r=cv.getBoundingClientRect(); const x=Math.floor((ev.clientX-r.left)/r.width*W), y=Math.floor((ev.clientY-r.top)/r.height*H); if(x>=0&&x<W&&y>=0&&y<H) cast(x,y); });
+  function selTool(t,id){ tool=t; for(const b of ['t_verse','t_bounty','t_warm']) document.getElementById(b).classList.toggle('sel',b===id); }
+  document.getElementById('t_verse').onclick=()=>selTool('verse','t_verse');
+  document.getElementById('t_bounty').onclick=()=>selTool('bounty','t_bounty');
+  document.getElementById('t_warm').onclick=()=>selTool('warm','t_warm');
+  document.getElementById('p_red').onclick=()=>ex.set_patron(...PRESETS.red);
+  document.getElementById('p_grn').onclick=()=>ex.set_patron(...PRESETS.grn);
+  document.getElementById('p_blu').onclick=()=>ex.set_patron(...PRESETS.blu);
+  document.getElementById('restart').onclick=()=>{ worldSeed=(Math.floor(Math.random()*1e9))>>>0; reinit(); };
+  document.getElementById('pause').onclick=(e)=>{ running=!running; e.target.textContent=running?'⏸':'▶'; };
+});
+</script>
+</body>
+</html>
