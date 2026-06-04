@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEMIURGE — نوسفر / Noosphere: life + emergent belief</title>
+<style>
+  :root { color-scheme: dark; } * { box-sizing: border-box; }
+  body { margin:0; background:#070a10; color:#cdd6e4; font:14px/1.5 system-ui,"Segoe UI",Tahoma,sans-serif; display:flex; flex-direction:column; align-items:center; min-height:100vh; padding:18px; }
+  h1 { font-size:18px; margin:4px 0 2px; }
+  .sub { color:#7d8aa5; font-size:12px; margin-bottom:12px; text-align:center; max-width:640px; }
+  .warn { color:#d7a45a; font-size:11.5px; max-width:640px; text-align:center; margin-bottom:10px; }
+  .wrap { background:#0c111b; border:1px solid #1b2535; border-radius:14px; padding:14px; box-shadow:0 10px 40px #0009; }
+  canvas { display:block; border-radius:8px; image-rendering:pixelated; width:min(92vw,704px); height:auto; }
+  .hud { font-variant-numeric:tabular-nums; margin-top:10px; color:#9fb0cc; font-size:12.5px; direction:ltr; text-align:left; }
+  .row { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
+  button { background:#16213a; color:#d7e2f5; border:1px solid #25344f; border-radius:8px; padding:7px 12px; cursor:pointer; font-size:13px; }
+  button:hover { background:#1d2c4b; } label { color:#8b99b5; font-size:12px; }
+  code { color:#8fd0a8; background:#0e1726; padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <h1>🧬🌍 نوسفر — حیات + باورِ نوظهور</h1>
+  <div class="sub">موجوداتِ عصبیِ قطعی در زیست‌بوم‌ها زندگی می‌کنند؛ رنگِ هر موجود = <b>بردارِ باورِ</b> اوست (هم‌نوایی با همسایه‌ها + اثرِ ضعیفِ زیست‌بوم + هم‌بستگی به‌مثابهٔ بقا).</div>
+  <div class="warn">⚠️ صداقت: این مکانیک <b>اختراعِ نو نیست</b> (مدلِ فرهنگیِ Axelrod/دینامیکِ عقیده، پیشینهٔ شناخته‌شده). و ادعای «دینِ نوظهور» از دروازهٔ ابطالِ ما رد <b>نشد</b>. این فقط یک نمایشِ زندهٔ قطعی است. «موجوداتِ نو (همان جهان)» را چند بار بزنید تا <b>مسیر‌وابستگی</b> را ببینید.</div>
+  <div class="wrap">
+    <canvas id="c"></canvas>
+    <div class="hud" id="hud">…</div>
+    <div class="row">
+      <button id="pause">⏸ مکث</button>
+      <button id="newcre">🎲 موجوداتِ نو (همان جهان)</button>
+      <button id="newworld">🌍 جهانِ نو</button>
+      <label><input id="beta" type="checkbox" checked> اثرِ زیست‌بوم (β)</label>
+      <label>سرعت <input id="speed" type="range" min="1" max="6" value="2"></label>
+    </div>
+  </div>
+<script>
+const wasmB64="__WASM_B64__";
+function b64(b){const s=atob(b);const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+const BG=[[10,22,42],[26,64,110],[120,108,70],[58,92,46],[34,68,40],[24,74,46],[120,128,118],[78,74,68]]; // dim biome bg
+let ex,W,H,cell=11,worldSeed=7,simSeed=1,beta=1,running=true,speed=2;
+WebAssembly.instantiate(b64(wasmB64),{}).then(({instance})=>{
+  ex=instance.exports; W=ex.width(); H=ex.height();
+  const cv=document.getElementById('c'); cv.width=W*cell; cv.height=H*cell; const ctx=cv.getContext('2d');
+  function reinit(){ ex.init(worldSeed>>>0,0,simSeed>>>0,0,beta); }
+  function draw(){
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){ const b=ex.biome_at(x,y); const c=BG[b]; ctx.fillStyle=`rgb(${c[0]},${c[1]},${c[2]})`; ctx.fillRect(x*cell,y*cell,cell,cell); }
+    const p=ex.pop(); const fh=new Array(8).fill(0);
+    for(let i=0;i<p;i++){ const x=ex.cx(i),y=ex.cy(i); fh[ex.faith(i)]++;
+      const r=ex.belief(i,0)*255/65536|0, g=ex.belief(i,1)*255/65536|0, bl=ex.belief(i,2)*255/65536|0;
+      ctx.fillStyle=`rgb(${r},${g},${bl})`; ctx.beginPath(); ctx.arc(x*cell+cell/2,y*cell+cell/2,cell*0.42,0,6.2832); ctx.fill(); }
+    const faiths=fh.filter(v=>v>0.05*p).length;
+    const fp=(BigInt(ex.fp_hi()>>>0)<<32n)|BigInt(ex.fp_lo()>>>0);
+    document.getElementById('hud').textContent=`tick ${ex.tickn()} · pop ${p} · coexisting faiths ${faiths} · world ${worldSeed} · creatures ${simSeed} · β ${beta?'on':'off'} · fp ${fp}`;
+  }
+  function frame(){ if(running) for(let s=0;s<speed;s++) ex.step(); draw(); requestAnimationFrame(frame); }
+  reinit(); frame();
+  document.getElementById('pause').onclick=(e)=>{running=!running; e.target.textContent=running?'⏸ مکث':'▶ ادامه';};
+  document.getElementById('newcre').onclick=()=>{ simSeed=(simSeed+1)>>>0; reinit(); };
+  document.getElementById('newworld').onclick=()=>{ worldSeed=(Math.floor(Math.random()*1e9))>>>0; reinit(); };
+  document.getElementById('beta').onchange=(e)=>{ beta=e.target.checked?1:0; reinit(); };
+  document.getElementById('speed').oninput=(e)=>{ speed=+e.target.value; };
+});
+</script>
+</body>
+</html>

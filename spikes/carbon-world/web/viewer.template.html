@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DEMIURGE — جهانِ کربنیِ قطعی / Deterministic Carbon World</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #070a10; color: #cdd6e4; font: 14px/1.5 system-ui, "Segoe UI", Tahoma, sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 18px; }
+  h1 { font-size: 18px; margin: 4px 0 2px; font-weight: 650; }
+  .sub { color: #7d8aa5; font-size: 12px; margin-bottom: 12px; text-align: center; max-width: 640px; }
+  .wrap { background: #0c111b; border: 1px solid #1b2535; border-radius: 14px; padding: 14px; box-shadow: 0 10px 40px #0009; }
+  canvas { display: block; border-radius: 8px; image-rendering: pixelated; width: min(92vw, 768px); height: auto; }
+  .hud { font-variant-numeric: tabular-nums; margin-top: 10px; color: #9fb0cc; font-size: 12.5px; direction: ltr; text-align: left; }
+  .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; justify-content: center; }
+  button { background: #16213a; color: #d7e2f5; border: 1px solid #25344f; border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 13px; }
+  button:hover { background: #1d2c4b; }
+  input[type=number] { width: 90px; background: #0e1726; color: #d7e2f5; border: 1px solid #25344f; border-radius: 7px; padding: 6px 8px; }
+  label { color: #8b99b5; font-size: 12px; }
+  .legend { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px 12px; max-width: 768px; font-size: 11.5px; color: #9fb0cc; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1px solid #0006; }
+  code { color: #8fd0a8; background: #0e1726; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>🌍 جهانِ کربنیِ قطعی — Deterministic Carbon World</h1>
+  <div class="sub">
+    زمین/اقلیم/زیست‌بوم به‌صورتِ <b>رویه‌ای</b> از یک seed ساخته می‌شود — نوفهٔ fBm + بندهای دمایی (عرضِ جغرافیایی + ارتفاع) + زیست‌بوم‌بندیِ ویتاکر.
+    همان هستهٔ Rust→WASM، <b>تماماً عددِ صحیح</b>: همان seed همیشه همان سیاره را می‌سازد (native = wasm).
+  </div>
+  <div class="wrap">
+    <canvas id="c"></canvas>
+    <div class="hud" id="hud">…</div>
+    <div class="row">
+      <button id="reseed">🎲 سیارهٔ نو</button>
+      <label>seed <input id="seed" type="number" value="16"></label>
+      <button id="go">برو</button>
+      <label><input id="shade" type="checkbox" checked> سایهٔ ارتفاع</label>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+<script>
+const wasmB64 = "__WASM_B64__";
+function b64ToBytes(b64){ const bin = atob(b64); const u = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+
+const COL = [[17,51,92],[31,95,166],[217,207,154],[224,200,115],[201,179,90],[127,176,79],[156,175,94],[63,143,79],[31,111,58],[79,122,99],[183,194,176],[138,130,118],[238,242,245],[64,150,235],[44,118,200]];
+const NAME = ["اقیانوسِ ژرف","اقیانوس","ساحل","کویر","ساوانا","علفزار","بوته‌زار","جنگلِ معتدل","جنگلِ بارانی","تایگا","توندرا","صخره","برف","رودخانه","دریاچه"];
+
+let ex, W, H, cell = 8, seed = 16, shade = true;
+
+WebAssembly.instantiate(b64ToBytes(wasmB64), {}).then(({ instance }) => {
+  ex = instance.exports;
+  W = ex.width(); H = ex.height();
+  const cv = document.getElementById('c'); cv.width = W*cell; cv.height = H*cell;
+  const ctx = cv.getContext('2d');
+
+  function draw() {
+    for (let y=0;y<H;y++) for (let x=0;x<W;x++) {
+      const b = ex.biome_at(x,y), e = ex.elev_at(x,y)/65536;
+      let r = COL[b][0], g = COL[b][1], bl = COL[b][2];
+      if (b <= 1) { const s = 0.55 + 0.95*e; r*=s; g*=s; bl*=s; }            // ocean: depth shading
+      else if (b < 13 && shade) { const s = Math.max(0.6, Math.min(1.3, 0.66 + 0.6*e)); r*=s; g*=s; bl*=s; } // land relief
+      ctx.fillStyle = `rgb(${r|0},${g|0},${bl|0})`;
+      ctx.fillRect(x*cell, y*cell, cell, cell);
+    }
+  }
+  function hud() {
+    let land = 0, tot = 0;
+    for (let b=0;b<ex.nbiome();b++){ const h = ex.hist(b); tot += h; if (b>1) land += h; }
+    const fp = (BigInt(ex.fp_hi()>>>0) << 32n) | BigInt(ex.fp_lo()>>>0);
+    document.getElementById('hud').textContent = `seed ${seed} · ${W}×${H} · land ${Math.round(land*100/tot)}% · fingerprint ${fp}`;
+  }
+  function gen() { ex.generate(seed, 0); draw(); hud(); }
+
+  // legend swatches
+  const leg = document.getElementById('legend');
+  for (let b=0;b<COL.length;b++){ const s=document.createElement('span'); const sw=document.createElement('i'); sw.className='sw'; sw.style.background=`rgb(${COL[b].join(',')})`; s.appendChild(sw); s.appendChild(document.createTextNode(NAME[b])); leg.appendChild(s); }
+
+  gen();
+  document.getElementById('reseed').onclick = () => { seed = (Math.floor(Math.random()*1e9)); document.getElementById('seed').value = seed; gen(); };
+  document.getElementById('go').onclick = () => { seed = (+document.getElementById('seed').value)>>>0; gen(); };
+  document.getElementById('shade').onchange = (ev) => { shade = ev.target.checked; draw(); };
+});
+</script>
+</body>
+</html>
